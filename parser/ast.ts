@@ -2,7 +2,8 @@ export type NodeType =
   | "Program"
   | "NumberLiteral"
   | "Identifier"
-  | "BinaryExpression";
+  | "BinaryExpression"
+  | "NullLiteral";
 
 
 export interface Statement {
@@ -31,4 +32,9 @@ export interface NumberLiteral extends Expression {
 export interface Identifier extends Expression {
   kind: "Identifier";
   symbol: string;
+}
+
+export interface NullLiteral extends Expression {
+  kind: "NullLiteral";
+  value: "null";
 }

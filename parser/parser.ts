@@ -5,6 +5,7 @@ import {
   Program,
   Statement,
   BinaryExpression,
+  NullLiteral,
 } from "./ast.ts";
 import { Token, tokenize, TokenType } from "../lexer/lexer.ts";
 
@@ -64,8 +65,7 @@ export default class Parser {
 
     while (
       this.at().value === "+" ||
-      this.at().value === "-" ||
-      this.at().value === "%"
+      this.at().value === "-" 
     ) {
       const operator = this.next().value;
     const right = this.parse_multiplicative_expression();
@@ -84,7 +84,11 @@ export default class Parser {
   private parse_multiplicative_expression(): Expression {
     let left = this.parse_primary_expression();
 
-    while (this.at().value === "/" || this.at().value === "*") {
+    while (
+      this.at().value === "/" ||
+      this.at().value === "*" ||
+      this.at().value === "%"
+    ) {
       const operator = this.next().value;
       const right = this.parse_primary_expression();
 
@@ -107,7 +111,8 @@ export default class Parser {
         return this.parse_identifier();
       case TokenType.NUMBER:
         return this.parse_number_literal();
-      // case TokenType.EQUALS:
+      case TokenType.NULL:
+        return this.parse_null_literal();
       // case TokenType.BINARY_OPERATOR:
       // case TokenType.LET:
       case TokenType.L_PAREN:
@@ -118,6 +123,14 @@ export default class Parser {
         console.error(`Unexpected token: ${JSON.stringify(token)}`);
         Deno.exit(1);
     }
+  }
+
+  private parse_null_literal(): Expression {
+    this.next();
+    return {
+      kind: "NullLiteral",
+      value: "null",
+    } as NullLiteral;
   }
 
   private parse_open_paren_expression(): Expression {

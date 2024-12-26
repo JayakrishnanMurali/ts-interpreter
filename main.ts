@@ -1,3 +1,4 @@
+import { evaluate } from "./interpreter/interpreter.ts";
 import Parser from "./parser/parser.ts";
 
 
@@ -14,7 +15,10 @@ function repl() {
     }
 
     const ast = parser.generateAST(input)
-    console.log(ast)
+    const result = evaluate(ast)
+
+    console.log(result)
+    console.log("--------------------\n\n");
   }
 }
 

@@ -1,4 +1,3 @@
-
 export enum TokenType {
   NUMBER = "NUMBER",
   IDENTIFIER = "IDENTIFIER",
@@ -7,8 +6,9 @@ export enum TokenType {
   LET = "LET",
   L_PAREN = "L_PAREN",
   R_PAREN = "R_PAREN",
+  NULL = "NULL",
 
-  EOF = "EOF"
+  EOF = "EOF",
 }
 
 export interface Token {
@@ -17,10 +17,11 @@ export interface Token {
 }
 
 const _KEYWORDS: Record<string, TokenType> = {
-  "let": TokenType.LET,
-}
+  let: TokenType.LET,
+  null: TokenType.NULL,
+};
 
-function _token(value:string, type: TokenType): Token {
+function _token(value: string, type: TokenType): Token {
   return { value, type };
 }
 
@@ -32,84 +33,84 @@ function _isNumber(src: string) {
   return /^[0-9]$/.test(src);
 }
 
-
-
 export function tokenize(source: string): Token[] {
   const tokens = new Array<Token>();
   const src = source.split("");
 
   let current = 0;
 
-  while(current < src.length) {
+  while (current < src.length) {
     const char = src[current];
 
-     switch (char) {
-       case " ":
-       case "\t":
-       case "\n":
-         current++;
-         break;
+    switch (char) {
+      case " ":
+      case "\t":
+      case "\n":
+        current++;
+        break;
 
-       case "(":
-         tokens.push(_token(char, TokenType.L_PAREN));
-         current++;
-         break;
+      case "(":
+        tokens.push(_token(char, TokenType.L_PAREN));
+        current++;
+        break;
 
-       case ")":
-         tokens.push(_token(char, TokenType.R_PAREN));
-         current++;
-         break;
+      case ")":
+        tokens.push(_token(char, TokenType.R_PAREN));
+        current++;
+        break;
 
-       case "-":
-       case "+":
-       case "*":
-       case "/":
-       case "%":
-         tokens.push(_token(char, TokenType.BINARY_OPERATOR));
-         current++;
-         break;
+      case "-":
+      case "+":
+      case "*":
+      case "/":
+      case "%":
+        tokens.push(_token(char, TokenType.BINARY_OPERATOR));
+        current++;
+        break;
 
-       case "=":
-         tokens.push(_token(char, TokenType.EQUALS));
-         current++;
-         break;
+      case "=":
+        tokens.push(_token(char, TokenType.EQUALS));
+        current++;
+        break;
 
-       default:
-         if (_isNumber(char)) {
-          let num = ""
+      default:
+        if (_isNumber(char)) {
+          let num = "";
 
-          while(current < src.length && _isNumber(src[current])){
+          while (current < src.length && _isNumber(src[current])) {
             num += src[current];
             current++;
           }
 
           tokens.push(_token(num, TokenType.NUMBER));
           continue;
-         }
+        }
 
-         if(_isAlphabet(char)){
-          let val = ""
-          while(current < src.length && (_isAlphabet(src[current]) || _isNumber(src[current]))){
+        if (_isAlphabet(char)) {
+          let val = "";
+          while (
+            current < src.length &&
+            (_isAlphabet(src[current]) || _isNumber(src[current]))
+          ) {
             val += src[current];
             current++;
           }
 
           const reserved = _KEYWORDS[val];
 
-          if(reserved) {
+          if (reserved) {
             tokens.push(_token(val, reserved));
           } else {
             tokens.push(_token(val, TokenType.IDENTIFIER));
           }
 
           continue;
-         }
+        }
 
         console.log(`Unexpected token: ${char}`);
         Deno.exit(1);
-     }
+    }
   }
-
 
   tokens.push(_token("", TokenType.EOF));
   return tokens;
